@@ -1,0 +1,20 @@
+---
+
+- name: Job directories are present
+  file:
+    path: "{{ jenkins_home }}/jobs/{{ item }}"
+    state: directory
+    mode: 0755
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+  with_items: "{{ jenkins_jobs }}"
+
+- name: Jobs are present
+  copy:
+    src: "{{ jenkins_source_dir_jobs }}/{{ item }}/config.xml"
+    dest: "{{ jenkins_home }}/jobs/{{ item }}/config.xml"
+    mode: 0755
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+  with_items: "{{ jenkins_jobs }}"
+

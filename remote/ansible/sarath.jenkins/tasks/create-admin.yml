@@ -1,0 +1,10 @@
+---
+
+- name: configure default users
+  template:
+    src: basic-security.groovy
+    dest: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+    mode: 0775
+  register: jenkins_users_config

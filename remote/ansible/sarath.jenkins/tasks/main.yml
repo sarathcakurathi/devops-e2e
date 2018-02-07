@@ -1,0 +1,18 @@
+---
+
+- include_tasks: "{{ jenkins_install_via }}/install.yml"
+
+# Jenkins should not be running while we change the configuration
+# data, otherwise some files might be overwritten when it restarts
+- include_tasks: "{{ jenkins_install_via }}/stop.yml"
+- include_tasks: "configure-jenkins.yml"
+- include_tasks: "create-admin.yml"
+- include_tasks: "{{ jenkins_install_via }}/restart.yml"
+- include_tasks: "wait-for-start.yml"
+- include_tasks: "configure-plugins.yml"
+- include_tasks: "configure-jobs.yml"
+- include_tasks: "{{ jenkins_install_via }}/restart.yml"
+- include_tasks: "wait-for-start.yml"
+- include_tasks: "end-actions.yml"
+- include_tasks: "configure-cron.yml"
+

@@ -1,0 +1,4 @@
+- name: Delete basic-security.groovy
+  file:
+    path: "{{ jenkins_home }}/init.groovy.d/basic-security.groovy"
+    state: absent

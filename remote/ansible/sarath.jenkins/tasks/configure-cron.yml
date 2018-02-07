@@ -1,0 +1,54 @@
+---
+
+- name: Create cron directory
+  file:
+    path: "/home/{{ jenkins_config_owner }}/cron"
+    state: directory
+    mode: 0755
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+
+- name: Create cron/logs directory
+  file:
+    path: "/home/{{ jenkins_config_owner }}/cron/logs"
+    state: directory
+    mode: 0755
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+    
+- name: Create cron/xcvsource directory
+  file:
+    path: "/home/{{ jenkins_config_owner }}/cron/xcvsource"
+    state: directory
+    mode: 0755
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+    
+- name: Copy cron job script
+  copy:
+    src: "/home/{{ jenkins_config_owner }}/jenkins_backup_job.sh"
+    dest: "/home/{{ jenkins_config_owner }}/cron"
+    mode: 0744
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+
+- name: Install git package if not present
+  apt:
+    name: git
+
+- name: Configure git username
+  git_config: 
+    name: "user.name"
+    value: "{{ githubuser }}"
+
+- name: Configure git user email
+  git_config: 
+    name: "user.email"
+    value: "{{ githubuser }}@example.com"
+
+- name: Setup Jenkins backup cron job
+  cron:
+    name: jenkins config backup
+    minute: "0"
+    user: "{{ jenkins_config_owner }}"
+    job: "/home/{{ jenkins_config_owner }}/cron/jenkins_backup.sh {{ githubuser }} {{ githubpassword }}"

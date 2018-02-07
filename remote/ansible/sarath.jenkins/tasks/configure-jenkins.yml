@@ -1,0 +1,60 @@
+---
+
+- name: Configuration file is up to date (config.xml)
+  template:
+    src: "{{ item }}"
+    dest: "{{ jenkins_home }}"
+    mode: 0644
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+  with_fileglob: "{{ jenkins_source_config_xml }}"
+
+- name: Configure Jenkins location
+  template:
+    src: files/jenkins.model.JenkinsLocationConfiguration.xml.j2
+    dest: "{{ jenkins_home }}/jenkins.model.JenkinsLocationConfiguration.xml"
+    mode: 0644
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+
+- name: Create intermediate dirs for custom files
+  file:
+    path: "{{ jenkins_home }}/{{ item.dest | dirname }}"
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+    mode: 0755
+    state: directory
+  when: jenkins_include_custom_files
+  with_items: "{{ jenkins_custom_files }}"
+
+- name: Configure custom files
+  template:
+    src: "{{ jenkins_source_dir_configs }}/{{ item.src }}"
+    dest: "{{ jenkins_home }}/{{ item.dest }}"
+    mode: 0644
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+  when: jenkins_include_custom_files
+  with_items: "{{ jenkins_custom_files }}"
+
+- name: Clean initial identity file
+  file:
+    state: absent
+    path: "{{ jenkins_home }}/identity.key.enc"
+
+- name: Create and set permissions on secrets directory
+  file:
+    path: "{{ jenkins_home }}/secrets"
+    mode: 0700
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+    state: directory
+  when: jenkins_include_secrets
+  
+- name: secrets dir is up to date
+  copy:
+    src: "{{ jenkins_source_secrets }}"
+    dest: "{{ jenkins_home }}/secrets"
+    owner: "{{ jenkins_config_owner }}"
+    group: "{{ jenkins_config_group }}"
+  when: jenkins_include_secrets
